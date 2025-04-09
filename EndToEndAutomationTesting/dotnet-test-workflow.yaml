@@ -1,0 +1,44 @@
+apiVersion: testworkflows.testkube.io/v1
+kind: TestWorkflow
+metadata:
+  name: dotnet-selenium-single-container
+  namespace: testkube
+spec:
+  content:
+    git:
+      uri: https://github.com/sanglap-02/testkubeTest
+      revision: master
+      paths:
+        - EndToEndAutomationTesting
+  container:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    workingDir: /data/repo/EndToEndAutomationTesting
+  steps:
+    - name: Install Chrome and ChromeDriver
+      shell: |
+        apt-get update
+        apt-get install -y wget curl unzip gnupg
+        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /usr/share/keyrings/google-linux.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
+        apt-get update
+        apt-get install -y google-chrome-stable
+
+        # Install ChromeDriver
+        CHROME_VERSION=$(google-chrome --version | grep -oP "\d+\.\d+\.\d+")
+        echo "Detected Chrome version: $CHROME_VERSION"
+        DRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
+        echo "Installing Chromedriver version: $DRIVER_VERSION"
+        wget -q -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip
+        unzip /tmp/chromedriver.zip -d /usr/local/bin/
+        chmod +x /usr/local/bin/chromedriver
+    - name: Restore and Test
+      shell: |
+        dotnet restore EndToEndAutomationTesting.sln
+        export DISPLAY=:99
+        export PATH=$PATH:/usr/local/bin/
+        export CHROME_BIN=/usr/bin/google-chrome
+        export DOTNET_ENVIRONMENT=Development
+        dotnet test EndToEndAutomationTesting.sln --logger:"trx;LogFileName=test_results.trx"
+      artifacts:
+        paths:
+          - EndToEndAutomationTesting/TestResults/*
