@@ -16,7 +16,6 @@
     <PackageReference Include="ReportPortal.Client" Version="3.10.0" />
     <PackageReference Include="ReportPortal.NUnit" Version="4.8.0" />
     <PackageReference Include="ReportPortal.Shared" Version="3.10.0" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="136.0.7103.1700-beta" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
   </ItemGroup>

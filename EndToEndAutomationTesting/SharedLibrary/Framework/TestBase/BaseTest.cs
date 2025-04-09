@@ -60,8 +60,12 @@ namespace SharedLibrary.Framework.TestBase
         public void SetupDriver()
         {
             ChromeOptions options = new ChromeOptions();
+            options.AddArgument("--headless");
+            options.AddArgument("--no-sandbox");
+            options.AddArgument("--disable-dev-shm-usage");
             options.AddArgument("--disable-print-preview");
             options.AddArgument("--remote-allow-origins=*");
+
             if (EnablePerfLogging)
             {
                 var perfLoggingPrefs = new ChromiumPerformanceLoggingPreferences
@@ -72,10 +76,12 @@ namespace SharedLibrary.Framework.TestBase
                 options.SetLoggingPreference(LogType.Performance, OpenQA.Selenium.LogLevel.All);
                 options.PerformanceLoggingPreferences = perfLoggingPrefs;
             }
-            driver = new ChromeDriver();
-            driver.Manage().Window.Maximize();
 
+            var service = ChromeDriverService.CreateDefaultService("/usr/local/bin");
+            driver = new ChromeDriver(service, options);
+            driver.Manage().Window.Maximize();
         }
+
 
 
 
