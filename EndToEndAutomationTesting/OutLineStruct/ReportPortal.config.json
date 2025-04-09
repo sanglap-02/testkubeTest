@@ -1,0 +1,16 @@
+{
+    "enabled": true,
+    "server": {
+      "url": "http://localhost:8080/api/v1",
+      "project": "test_dashboard",
+      "authentication": {
+        "uuid": "TestApi_3dEJ_4TbQCCJJHbwUxiJt3tvN9h71IvvB6kQBVp1rLJPISkdt1CzW4FnqU4BnQj_"
+      }
+    },
+    "launch": {
+      "name": "OutLine Test_dashboard",
+      "description": "Automated Test Execution",
+      "debugMode": false
+    }
+  }
+  
