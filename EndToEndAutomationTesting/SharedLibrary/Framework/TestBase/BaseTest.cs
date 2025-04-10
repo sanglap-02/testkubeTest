@@ -49,10 +49,14 @@ namespace SharedLibrary.Framework.TestBase
 
             EndTest();
             EndReporting();
-            driver.Quit();
-            driver.Dispose();
 
+            if (driver != null)
+            {
+                try { driver.Quit(); } catch (Exception ex) { Log.Warning("Quit failed: " + ex.Message); }
+                try { driver.Dispose(); } catch (Exception ex) { Log.Warning("Dispose failed: " + ex.Message); }
+            }
         }
+
 
         /// <summary>
         /// Method to Setup Chrome Options
@@ -64,11 +68,19 @@ namespace SharedLibrary.Framework.TestBase
             options.AddArgument("--no-sandbox");
             options.AddArgument("--disable-dev-shm-usage");
 
-            var service = ChromeDriverService.CreateDefaultService("/usr/local/bin");
-            service.SuppressInitialDiagnosticInformation = true;
-            service.EnableVerboseLogging = false;
+            try
+            {
+                var service = ChromeDriverService.CreateDefaultService("/usr/local/bin");
+                service.SuppressInitialDiagnosticInformation = true;
+                service.EnableVerboseLogging = false;
 
-            driver = new ChromeDriver(service, options);
+                driver = new ChromeDriver(service, options);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to initialize ChromeDriver: {0}", ex.Message);
+                throw; // Optional: rethrow if you want test to fail early
+            }
         }
 
 
@@ -82,6 +94,10 @@ namespace SharedLibrary.Framework.TestBase
             var testStatus = TestContext.CurrentContext.Result.Outcome.Status;
             var message = TestContext.CurrentContext.Result.Message;
 
+            if (screenShot != null)
+            {
+                LogScreenshot("Ending Test", screenShot.GetScreeenshot());
+            }
             switch (testStatus)
             {
                 case TestStatus.Failed:

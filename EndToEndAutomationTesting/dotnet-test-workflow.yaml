@@ -20,9 +20,22 @@ spec:
     shell: bash
     setupScript: |
       apt-get update
-      apt-get install -y curl unzip chromium-driver chromium
-      ln -s /usr/bin/chromedriver /usr/local/bin/chromedriver
+      apt-get install -y curl unzip chromium
+      
+      # Download latest ChromeDriver version
+      CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)
+      echo "Using ChromeDriver version $CHROME_DRIVER_VERSION"
+      
+      wget -q -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip"
+      unzip -o /tmp/chromedriver.zip -d /usr/local/bin
+      chmod +x /usr/local/bin/chromedriver
+      
+      # Ensure symlink for Chromium is created for compatibility
       ln -s /usr/bin/chromium /usr/bin/google-chrome
+      
+      # Verify installations
+      chromium --version
+      chromedriver --version
   steps:
     - name: Restore packages
       shell: dotnet restore EndToEndAutomationTesting.sln
